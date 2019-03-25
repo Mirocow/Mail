@@ -1,7 +1,7 @@
 {
-    "name": "eden/mail",
+    "name": "ovk13/mail",
     "type": "library",
-    "description": "Eden POP3, IMAP and SMTP component",
+    "description": "Fork of Eden POP3, IMAP and SMTP component",
     "keywords": ["eden", "library"],
     "homepage": "http://eden-php.com",
     "license": "MIT",

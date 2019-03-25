@@ -34,47 +34,47 @@ class Pop3 extends Base
      * @var string $host The POP3 Host
      */
     protected $host = null;
-       
+
     /**
      * @var string|null $port The POP3 port
      */
     protected $port = null;
-       
+
     /**
      * @var bool $ssl Whether to use SSL
      */
     protected $ssl = false;
-       
+
     /**
      * @var bool $tls Whether to use TLS
      */
     protected $tls = false;
-       
+
     /**
      * @var string|null $username The mailbox user name
      */
     protected $username = null;
-       
+
     /**
      * @var string|null $password The mailbox password
      */
     protected $password = null;
-       
+
     /**
      * @var string|null $timestamp Default timestamp
      */
     protected $timestamp = null;
-       
+
     /**
      * @var [RESOURCE] $socket The socket connection
      */
     protected $socket = null;
-       
+
     /**
      * @var bool $loggedin If you are actually logged in
      */
     protected $loggedin = false;
-       
+
     /**
      * @var bool $debugging If true outputs the logs
      */
@@ -537,7 +537,7 @@ class Pop3 extends Base
         $headers1->subject = str_replace(array('<', '>'), '', trim($headers1->subject));
 
         //if the subject is iso or utf encoded
-        if (preg_match("/^\=\?[a-zA-Z]+\-[0-9]+.*\?/", strtolower($headers1->subject))) {
+        if (preg_match("/^\=\?[^?]+\?/", strtolower($headers1->subject))) {
             //decode the subject
             $headers1->subject = str_replace('_', ' ', mb_decode_mimeheader($headers1->subject));
         }
@@ -739,6 +739,10 @@ class Pop3 extends Base
                         $body = str_replace(array("\n", ' '), '', $body);
                         break;
                 }
+            }
+
+            if (isset($extra['charset']) && strtoupper($extra['charset']) != 'UTF-8') {
+                $body = mb_convert_encoding($body, 'UTF-8', strtoupper($extra['charset']));
             }
 
             if (isset($extra['name'])) {
