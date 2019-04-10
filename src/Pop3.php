@@ -144,14 +144,12 @@ class Pop3 extends Base
         $errno  =  0;
         $errstr = '';
 
-
         $context = stream_context_create([
             'ssl' => [
                 'verify_peer' => false,
                 'verify_peer_name' => false
             ]
         ]);
-
 
         $this->socket = stream_socket_client($host.':'.$this->port, $errno, $errstr, self::TIMEOUT, STREAM_CLIENT_CONNECT, $context);
 
