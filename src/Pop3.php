@@ -753,6 +753,9 @@ class Pop3 extends Base
             }
 
             if (isset($extra['name'])) {
+                if (preg_match('/^\=\?[^?]+\?/', $extra['name'])) {
+                    $extra['name'] = mb_decode_mimeheader($extra['name']);
+                }
                 //add to parts
                 $parts['attachment'][$extra['name']][$type] = $body;
             } else {
