@@ -287,6 +287,19 @@ class Pop3 extends Base
         return $emails;
     }
 
+
+    public function getEmail(int $num) {
+
+        $total = $this->getEmailTotal();
+
+        if ($num < 1 || $num > $total) {
+            throw new \Exception('Invalid $num');
+        }
+
+        return $this->getEmailFormat($this->call('RETR '.$num, true));
+
+    }
+
     /**
      * Returns the total number of emails in a mailbox
      *
