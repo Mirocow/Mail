@@ -592,7 +592,7 @@ class Pop3 extends Base
             'cc'            => $recipientsCc,
             'bcc'           => $recipientsBcc,
             'attachment'    => $attachment,
-            'headers'       => array_merge($headers1, $headers2)
+            'headers'       => $headers2
         );
 
         if (trim($body) && $body != ')') {
