@@ -591,7 +591,9 @@ class Pop3 extends Base
             'to'            => $recipientsTo,
             'cc'            => $recipientsCc,
             'bcc'           => $recipientsBcc,
-            'attachment'    => $attachment);
+            'attachment'    => $attachment,
+            'headers'       => array_merge($headers1, $headers2)
+        );
 
         if (trim($body) && $body != ')') {
             //get the body parts
