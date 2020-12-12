@@ -71,11 +71,6 @@ class Pop3 extends Base
     protected $socket = null;
 
     /**
-     * @var bool $loggedin If you are actually logged in
-     */
-    protected $loggedin = false;
-
-    /**
      * @var bool $debugging If true outputs the logs
      */
     private $debugging = false;
@@ -131,7 +126,7 @@ class Pop3 extends Base
     {
         Argument::i()->test(1, 'bool');
 
-        if ($this->loggedin) {
+        if ($this->socket) {
             return $this;
         }
 
@@ -206,10 +201,12 @@ class Pop3 extends Base
             }
         }
 
-        $this->call('USER '.$this->username);
-        $this->call('PASS '.$this->password);
-
-        $this->loggedin = true;
+        //login
+        if (!($this->call('USER '.$this->username) && $this->call('PASS '.$this->password))) {
+            $this->disconnect();
+            //throw exception
+            Exception::i(Exception::LOGIN_ERROR)->trigger();
+        }
 
         return $this;
     }
@@ -221,18 +218,11 @@ class Pop3 extends Base
      */
     public function disconnect()
     {
-        if (!$this->socket) {
-            return $this;
-        }
-
-        try {
+        if ($this->socket) {
             $this->send('QUIT');
-        } catch (Argument $e) {
-            // ignore error - we're closing the socket anyway
+            fclose($this->socket);
+            $this->socket = null;
         }
-
-        fclose($this->socket);
-        $this->socket = null;
 
         return $this;
     }
@@ -285,19 +275,6 @@ class Pop3 extends Base
         }
 
         return $emails;
-    }
-
-
-    public function getEmail(int $num) {
-
-        $total = $this->getEmailTotal();
-
-        if ($num < 1 || $num > $total) {
-            throw new \Exception('Invalid $num');
-        }
-
-        return $this->getEmailFormat($this->call('RETR '.$num, true));
-
     }
 
     /**
@@ -372,7 +349,7 @@ class Pop3 extends Base
         $message = '';
 
         if (strpos($result, ' ')) {
-            list($status, $message) = explode(' ', $result, 2);
+            [$status, $message] = explode(' ', $result, 2);
         }
 
         if ($status != '+OK') {
@@ -591,9 +568,7 @@ class Pop3 extends Base
             'to'            => $recipientsTo,
             'cc'            => $recipientsCc,
             'bcc'           => $recipientsBcc,
-            'attachment'    => $attachment,
-            'headers'       => $headers2
-        );
+            'attachment'    => $attachment);
 
         if (trim($body) && $body != ')') {
             //get the body parts
@@ -682,7 +657,7 @@ class Pop3 extends Base
     private function getParts($content, array $parts = array())
     {
         //separate the head and the body
-        list($head, $body) = preg_split("/\n\s*\n/", $content, 2);
+        [$head, $body] = preg_split("/\n\s*\n/", $content, 2);
         //get the headers
         $head = $this->getHeaders($head);
         //if content type is not set
@@ -715,7 +690,7 @@ class Pop3 extends Base
             //transform the extra array to a key value pair
             $attr = explode('=', $attr, 2);
             if (count($attr) > 1) {
-                list($key, $value) = $attr;
+                [$key, $value] = $attr;
                 $extra[strtolower($key)] = $value;
             }
             unset($extra[$i]);
