@@ -196,13 +196,13 @@ class Pop3 extends Base
                     . md5($this->timestamp . $this->password)
                 );
                 return;
-            } catch (Argument $e) {
+            } catch (Exception $e) {
                 // ignore
             }
         }
 
         //login
-        if (!($this->call('USER '.$this->username) && $this->call('PASS '.$this->password))) {
+        if ($this->call('USER '.$this->username) === false || $this->call('PASS '.$this->password) === false) {
             $this->disconnect();
             //throw exception
             Exception::i(Exception::LOGIN_ERROR)->trigger();
